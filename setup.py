@@ -8,7 +8,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name = 'llhttp',
-    version = '2.2.0.0',
+    version = '2.2.0.1',
     description = ("llhttp in python"),
     url = "http://github.com/pallas/pyllhttp",
     author = "Derrick Lyndon Pallas",
@@ -28,6 +28,7 @@ setup(
     ],
     ext_modules = [ Extension('llhttp', sources = """
         pyllhttp.c
+        llhttp/llhttp.h
         llhttp/llhttp.c
         llhttp/http.c
         llhttp/api.c
