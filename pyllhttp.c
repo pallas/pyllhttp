@@ -29,18 +29,10 @@ HTTP_METHOD_MAP(HTTP_METHOD_GEN)
 
 
 static int
-parser_callback(PyObject *type, llhttp_t *llhttp) {
-    if (!PyObject_HasAttr(llhttp->data, type))
-        return HPE_OK;
-
-    PyObject *attr = PyObject_GetAttr(llhttp->data, type);
-    if (attr) {
-        PyObject *result = PyEval_CallObject(attr, NULL);
-        if (result) {
-            Py_DECREF(result);
-        }
-        Py_DECREF(attr);
-    }
+parser_callback(_Py_Identifier *type, llhttp_t *llhttp) {
+    PyObject *result = _PyObject_CallMethodIdObjArgs(llhttp->data, type, NULL);
+    if (result)
+        Py_DECREF(result);
 
     if (PyErr_Occurred())
         return HPE_USER;
@@ -59,22 +51,12 @@ parser_callback(PyObject *type, llhttp_t *llhttp) {
 }
 
 static int
-parser_data_callback(PyObject *type, llhttp_t *llhttp, const char *data, size_t length) {
-    if (!PyObject_HasAttr(llhttp->data, type))
-        return HPE_OK;
-
-    PyObject *attr = PyObject_GetAttr(llhttp->data, type);
-    if (attr) {
-        PyObject *args = Py_BuildValue("(N)", PyMemoryView_FromMemory((char*)data, length, PyBUF_READ));
-        if (args) {
-            PyObject *result = PyEval_CallObject(attr, args);
-            if (result) {
-                Py_DECREF(result);
-            }
-            Py_DECREF(args);
-        }
-        Py_DECREF(attr);
-    }
+parser_data_callback(_Py_Identifier *type, llhttp_t *llhttp, const char *data, size_t length) {
+    PyObject *payload = PyMemoryView_FromMemory((char*)data, length, PyBUF_READ);
+    PyObject *result = _PyObject_CallMethodIdObjArgs(llhttp->data, type, payload, NULL);
+    Py_DECREF(payload);
+    if (result)
+        Py_DECREF(result);
 
     if (PyErr_Occurred())
         return HPE_USER;
@@ -93,14 +75,14 @@ parser_data_callback(PyObject *type, llhttp_t *llhttp, const char *data, size_t 
 }
 
 #define PARSER_CALLBACK(type) \
-static PyObject *string_ ## type; \
+_Py_IDENTIFIER(type); \
 static int parser_ ## type (llhttp_t *llhttp) \
-    { return parser_callback(string_ ## type, llhttp); }
+    { return parser_callback(&PyId_ ## type, llhttp); }
 
 #define PARSER_DATA_CALLBACK(type) \
-static PyObject *string_ ## type; \
+_Py_IDENTIFIER(type); \
 static int parser_ ## type (llhttp_t *llhttp, const char *data, size_t length) \
-    { return parser_data_callback(string_ ## type, llhttp, data, length); }
+    { return parser_data_callback(&PyId_ ## type, llhttp, data, length); }
 
 PARSER_CALLBACK(on_message_begin)
 PARSER_DATA_CALLBACK(on_url)
@@ -414,17 +396,6 @@ snake_to_camel(char * string) {
 
 PyMODINIT_FUNC
 PyInit_llhttp(void) {
-    string_on_message_begin = PyUnicode_FromString("on_message_begin");
-    string_on_url = PyUnicode_FromString("on_url");
-    string_on_status = PyUnicode_FromString("on_status");
-    string_on_header_field = PyUnicode_FromString("on_header_field");
-    string_on_header_value = PyUnicode_FromString("on_header_value");
-    string_on_headers_complete = PyUnicode_FromString("on_headers_complete");
-    string_on_body = PyUnicode_FromString("on_body");
-    string_on_message_complete = PyUnicode_FromString("on_message_complete");
-    string_on_chunk_header = PyUnicode_FromString("on_chunk_header");
-    string_on_chunk_complete = PyUnicode_FromString("on_chunk_complete");
-
     PyObject *m = PyModule_Create(&llhttp_module);
     if (!m)
         return NULL;
