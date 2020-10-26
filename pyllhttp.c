@@ -175,6 +175,9 @@ parser_execute(PyObject *self, PyObject *payload) {
     llhttp_errno_t error = llhttp_execute(llhttp, buffer.buf, buffer.len);
     PyBuffer_Release(&buffer);
 
+    if (PyErr_Occurred())
+        return NULL;
+
     switch (error) {
     case HPE_OK:
         return PyLong_FromUnsignedLong(buffer.len);
@@ -182,9 +185,6 @@ parser_execute(PyObject *self, PyObject *payload) {
     case HPE_PAUSED:
     case HPE_PAUSED_UPGRADE:
         return PyLong_FromUnsignedLong(llhttp->error_pos - (const char*)buffer.buf);
-
-    case HPE_USER:
-        return NULL;
 
     default:
         PyErr_SetString(errors[error], llhttp_get_error_reason(llhttp));
