@@ -1,5 +1,4 @@
-from setuptools import setup
-from distutils.core import Extension
+from setuptools import setup, Extension
 
 from os import path
 this_directory = path.abspath(path.dirname(__file__))
@@ -8,7 +7,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name = 'llhttp',
-    version = '2.2.0.1',
+    version = '2.2.0.2',
     description = ("llhttp in python"),
     url = "http://github.com/pallas/pyllhttp",
     author = "Derrick Lyndon Pallas",
@@ -26,12 +25,15 @@ setup(
         "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
         "License :: OSI Approved :: MIT License",
     ],
-    ext_modules = [ Extension('llhttp', sources = """
-        pyllhttp.c
-        llhttp/llhttp.h
-        llhttp/llhttp.c
-        llhttp/http.c
-        llhttp/api.c
-    """.split()) ],
+    headers = [ "llhttp/llhttp.h" ],
+    ext_modules = [ Extension('llhttp',
+        sources = """
+            pyllhttp.c
+            llhttp/llhttp.c
+            llhttp/http.c
+            llhttp/api.c
+        """.split(),
+        language = "c",
+    ) ],
 )
 #
