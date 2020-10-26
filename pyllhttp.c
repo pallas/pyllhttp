@@ -227,6 +227,9 @@ parser_finish(PyObject *self) {
 
 static PyObject * parser_reset(PyObject *self);
 
+static PyObject * parser_dummy_noargs(PyObject *self) { Py_RETURN_NONE; }
+static PyObject * parser_dummy_onearg(PyObject *self, PyObject *arg) { Py_RETURN_NONE; }
+
 static PyMethodDef parser_methods[] = {
     { "execute", (PyCFunction)parser_execute, METH_O },
     { "pause", (PyCFunction)parser_pause, METH_NOARGS },
@@ -234,6 +237,16 @@ static PyMethodDef parser_methods[] = {
     { "upgrade", (PyCFunction)parser_upgrade, METH_NOARGS },
     { "finish", (PyCFunction)parser_finish, METH_NOARGS },
     { "reset", (PyCFunction)parser_reset, METH_NOARGS },
+    { "on_message_begin", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
+    { "on_url", (PyCFunction)parser_dummy_onearg, METH_O },
+    { "on_status", (PyCFunction)parser_dummy_onearg, METH_O },
+    { "on_header_field", (PyCFunction)parser_dummy_onearg, METH_O },
+    { "on_header_value", (PyCFunction)parser_dummy_onearg, METH_O },
+    { "on_headers_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
+    { "on_body", (PyCFunction)parser_dummy_onearg, METH_O },
+    { "on_message_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
+    { "on_chunk_header", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
+    { "on_chunk_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
     { NULL }
 };
 
