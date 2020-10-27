@@ -309,6 +309,19 @@ parser_is_upgrading(PyObject *self, void *closure) {
     return PyBool_FromLong(HPE_PAUSED_UPGRADE == llhttp_get_errno(llhttp));
 }
 
+static PyObject *
+parser_is_busted(PyObject *self, void *closure) {
+    llhttp_t *llhttp = &((parser_object*)self)->llhttp;
+    switch (llhttp_get_errno(llhttp)) {
+    case HPE_OK:
+    case HPE_PAUSED:
+    case HPE_PAUSED_UPGRADE:
+        Py_RETURN_FALSE;
+    default:
+        Py_RETURN_TRUE;
+    }
+}
+
 static PyGetSetDef parser_getset[] = {
     { "method", parser_method },
     { "major", parser_major },
@@ -319,6 +332,7 @@ static PyGetSetDef parser_getset[] = {
     { "should_keep_alive", parser_should_keep_alive },
     { "is_paused", parser_is_paused },
     { "is_upgrading", parser_is_upgrading },
+    { "is_busted", parser_is_busted },
     { NULL }
 };
 
