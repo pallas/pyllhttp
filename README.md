@@ -25,17 +25,18 @@ class request_parser(llhttp.Request):
         self.url += url
         self.pause()
 
-    def on_header_field(self, field):
-        if self.current_header_value is not None:
-            assert self.current_header_field is not None
-            self.headers[self.current_header_field] = self.current_header_value
-            self.current_header_field = None
-            self.current_header_value = None
+    def on_url_complete(self):
+        print(f"URL {self.url}")
 
+    def on_header_field(self, field):
+        assert self.current_header_value is None
         if self.current_header_field is None:
             self.current_header_field = bytes(field)
         else:
             self.current_header_field += field
+
+    def on_header_field_complete(self):
+        pass
 
     def on_header_value(self, value):
         assert self.current_header_field is not None
@@ -44,16 +45,18 @@ class request_parser(llhttp.Request):
         else:
             self.current_header_value += value
 
-    def on_headers_complete(self):
-        if self.current_header_value is not None:
-            assert self.current_header_field is not None
-            self.headers[self.current_header_field] = self.current_header_value
-            self.current_header_field = None
-            self.current_header_value = None
+    def on_header_value_complete(self):
+        assert self.current_header_field is not None
+        print(f"HEADER {self.current_header_field}: {self.current_header_value}")
+        self.headers[self.current_header_field] = self.current_header_value
+        self.current_header_field = None
+        self.current_header_value = None
 
-    def on_message_complete(self):
+    def on_headers_complete(self):
         assert self.current_header_field is None
         assert self.current_header_value is None
+
+    def on_message_complete(self):
         print("MESSAGE COMPLETE")
 
 parser = request_parser()

@@ -86,9 +86,13 @@ static int parser_ ## type (llhttp_t *llhttp, const char *data, size_t length) \
 
 PARSER_CALLBACK(on_message_begin)
 PARSER_DATA_CALLBACK(on_url)
+PARSER_CALLBACK(on_url_complete)
 PARSER_DATA_CALLBACK(on_status)
+PARSER_CALLBACK(on_status_complete)
 PARSER_DATA_CALLBACK(on_header_field)
+PARSER_CALLBACK(on_header_field_complete)
 PARSER_DATA_CALLBACK(on_header_value)
+PARSER_CALLBACK(on_header_value_complete)
 PARSER_CALLBACK(on_headers_complete)
 PARSER_DATA_CALLBACK(on_body)
 PARSER_CALLBACK(on_message_complete)
@@ -98,9 +102,13 @@ PARSER_CALLBACK(on_chunk_complete)
 llhttp_settings_t parser_settings = {
     .on_message_begin = parser_on_message_begin,
     .on_url = parser_on_url,
+    .on_url_complete = parser_on_url_complete,
     .on_status = parser_on_status,
+    .on_status_complete = parser_on_status_complete,
     .on_header_field = parser_on_header_field,
+    .on_header_field_complete = parser_on_header_field_complete,
     .on_header_value = parser_on_header_value,
+    .on_header_value_complete = parser_on_header_value_complete,
     .on_headers_complete = parser_on_headers_complete,
     .on_body = parser_on_body,
     .on_message_complete = parser_on_message_complete,
@@ -221,9 +229,13 @@ static PyMethodDef parser_methods[] = {
     { "reset", (PyCFunction)parser_reset, METH_NOARGS },
     { "on_message_begin", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
     { "on_url", (PyCFunction)parser_dummy_onearg, METH_O },
+    { "on_url_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
     { "on_status", (PyCFunction)parser_dummy_onearg, METH_O },
+    { "on_status_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
     { "on_header_field", (PyCFunction)parser_dummy_onearg, METH_O },
+    { "on_header_field_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
     { "on_header_value", (PyCFunction)parser_dummy_onearg, METH_O },
+    { "on_header_value_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
     { "on_headers_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
     { "on_body", (PyCFunction)parser_dummy_onearg, METH_O },
     { "on_message_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
@@ -273,15 +285,28 @@ parser_content_length(PyObject *self, void *closure) {
 }
 
 static PyObject *
-parser_get_lenient(PyObject *self, void *closure) {
+parser_get_lenient_headers(PyObject *self, void *closure) {
     llhttp_t *llhttp = &((parser_object*)self)->llhttp;
-    return PyBool_FromLong(llhttp->flags & F_LENIENT);
+    return PyBool_FromLong(llhttp->lenient_flags & LENIENT_HEADERS);
 }
 
 static int
-parser_set_lenient(PyObject *self, PyObject *value, void *closure) {
+parser_set_lenient_headers(PyObject *self, PyObject *value, void *closure) {
     llhttp_t *llhttp = &((parser_object*)self)->llhttp;
-    llhttp_set_lenient(llhttp, PyObject_IsTrue(value));
+    llhttp_set_lenient_headers(llhttp, PyObject_IsTrue(value));
+    return 0;
+}
+
+static PyObject *
+parser_get_lenient_chunked_length(PyObject *self, void *closure) {
+    llhttp_t *llhttp = &((parser_object*)self)->llhttp;
+    return PyBool_FromLong(llhttp->lenient_flags & LENIENT_CHUNKED_LENGTH);
+}
+
+static int
+parser_set_lenient_chunked_length(PyObject *self, PyObject *value, void *closure) {
+    llhttp_t *llhttp = &((parser_object*)self)->llhttp;
+    llhttp_set_lenient_chunked_length(llhttp, PyObject_IsTrue(value));
     return 0;
 }
 
@@ -327,7 +352,8 @@ static PyGetSetDef parser_getset[] = {
     { "major", parser_major },
     { "minor", parser_minor },
     { "content_length", parser_content_length },
-    { "lenient", parser_get_lenient, parser_set_lenient },
+    { "lenient_headers", parser_get_lenient_headers, parser_set_lenient_headers },
+    { "lenient_chunked_length", parser_get_lenient_chunked_length, parser_set_lenient_chunked_length },
     { "message_needs_eof", parser_message_needs_eof },
     { "should_keep_alive", parser_should_keep_alive },
     { "is_paused", parser_is_paused },
