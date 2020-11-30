@@ -5,6 +5,12 @@ Python wrapper for llhttp
 A simple Python wrapper around [llhttp](https://github.com/nodejs/llhttp),
 the HTTP parser for [Node.js](https://nodejs.org/).
 
+## Install
+
+[llhttp](https://pypi.org/project/llhttp/) via PyPI, or `pip install llhttp`
+
+## Usage
+
 ```python
 import llhttp
 from pprint import pprint
@@ -78,9 +84,11 @@ pprint({
 })
 ```
 
+## Extra
+
 This project is a toy, started to reacquaint myself with Python
 [c-api](https://docs.python.org/3/c-api/) modules.  If you find it useful,
-let me know.
+please let me know.
 
 The version number tracks the version of the incorporated llhttp.
 
