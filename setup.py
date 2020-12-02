@@ -25,13 +25,14 @@ setup(
         "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
         "License :: OSI Approved :: MIT License",
     ],
-    headers = [ "llhttp/llhttp.h" ],
-    ext_modules = [ Extension('llhttp',
+    packages = [ "llhttp" ],
+    headers = [ "lib/llhttp.h" ],
+    ext_modules = [ Extension('__llhttp',
         sources = """
             pyllhttp.c
-            llhttp/llhttp.c
-            llhttp/http.c
-            llhttp/api.c
+            lib/llhttp.c
+            lib/http.c
+            lib/api.c
         """.split(),
         language = "c",
     ) ],

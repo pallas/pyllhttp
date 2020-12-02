@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
-#include "llhttp/llhttp.h"
+#include "lib/llhttp.h"
 
 #define STRING(x) #x
 #define XSTRING(x) STRING(x)
@@ -435,7 +435,7 @@ snake_to_camel(char * string) {
 }
 
 PyMODINIT_FUNC
-PyInit_llhttp(void) {
+PyInit___llhttp(void) {
     PyObject *m = PyModule_Create(&llhttp_module);
     if (!m)
         return NULL;
