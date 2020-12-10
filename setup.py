@@ -7,7 +7,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name = 'llhttp',
-    version = '3.0.0.0',
+    version = '3.0.0.1',
     description = ("llhttp in python"),
     url = "http://github.com/pallas/pyllhttp",
     author = "Derrick Lyndon Pallas",
