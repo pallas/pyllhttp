@@ -24,22 +24,24 @@ class request_parser(llhttp.Request):
     def on_header_field(self, field):
         assert self.current_header_value is None
         if self.current_header_field is None:
-            self.current_header_field = bytes(field)
+            self.current_header_field = bytearray(field)
         else:
             self.current_header_field += field
 
     def on_header_field_complete(self):
-        pass
+        self.current_header_field = self.current_header_field.decode('iso-8859-1').lower()
+        assert self.current_header_field not in self.headers
 
     def on_header_value(self, value):
         assert self.current_header_field is not None
         if self.current_header_value is None:
-            self.current_header_value = bytes(value)
+            self.current_header_value = bytearray(value)
         else:
             self.current_header_value += value
 
     def on_header_value_complete(self):
         assert self.current_header_field is not None
+        self.current_header_value = bytes(self.current_header_value)
         print(f"HEADER {self.current_header_field}: {self.current_header_value}")
         self.headers[self.current_header_field] = self.current_header_value
         self.current_header_field = None
@@ -59,7 +61,7 @@ parser.lenient_headers = True
 parser.reset()
 assert parser.lenient_headers is True
 
-buffer = b"GET /test HTTP/1.1\r\nlol:wut\r\noh: hai\r\n\r\n"
+buffer = b"GET /test HTTP/1.1\r\nlOl:wut\r\nOH: hai\r\n\r\n"
 while buffer:
     consumed = parser.execute(buffer[:2])
     buffer = buffer[consumed:]
