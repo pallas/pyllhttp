@@ -54,6 +54,11 @@ class request_parser(llhttp.Request):
 
 parser = request_parser()
 
+assert parser.lenient_headers is not True
+parser.lenient_headers = True
+parser.reset()
+assert parser.lenient_headers is True
+
 buffer = b"GET /test HTTP/1.1\r\nlol:wut\r\noh: hai\r\n\r\n"
 while buffer:
     consumed = parser.execute(buffer[:2])

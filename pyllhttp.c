@@ -117,34 +117,24 @@ llhttp_settings_t parser_settings = {
 };
 
 static PyObject *
-request_reset(PyObject *self) {
-    llhttp_t *llhttp = &((parser_object*)self)->llhttp;
-    llhttp_init(llhttp, HTTP_REQUEST, &parser_settings);
-    llhttp->data = self;
-    Py_RETURN_NONE;
-}
-
-static PyObject *
 request_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
     PyObject *self = type->tp_alloc(type, 0);
-    if (self)
-        request_reset(self);
+    if (self) {
+        llhttp_t *llhttp = &((parser_object*)self)->llhttp;
+        llhttp_init(llhttp, HTTP_REQUEST, &parser_settings);
+        llhttp->data = self;
+    }
     return self;
-}
-
-static PyObject *
-response_reset(PyObject *self) {
-    llhttp_t *llhttp = &((parser_object*)self)->llhttp;
-    llhttp_init(llhttp, HTTP_RESPONSE, &parser_settings);
-    llhttp->data = self;
-    Py_RETURN_NONE;
 }
 
 static PyObject *
 response_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
     PyObject *self = type->tp_alloc(type, 0);
-    if (self)
-        response_reset(self);
+    if (self) {
+        llhttp_t *llhttp = &((parser_object*)self)->llhttp;
+        llhttp_init(llhttp, HTTP_RESPONSE, &parser_settings);
+        llhttp->data = self;
+    }
     return self;
 }
 
@@ -215,7 +205,15 @@ parser_finish(PyObject *self) {
     return NULL;
 }
 
-static PyObject * parser_reset(PyObject *self);
+static PyObject *
+parser_reset(PyObject *self) {
+    llhttp_t *llhttp = &((parser_object*)self)->llhttp;
+    uint8_t lenient_flags = llhttp->lenient_flags;
+    llhttp_init(llhttp, llhttp->type, &parser_settings);
+    llhttp->lenient_flags = lenient_flags;
+    llhttp->data = self;
+    Py_RETURN_NONE;
+}
 
 static PyObject * parser_dummy_noargs(PyObject *self) { Py_RETURN_NONE; }
 static PyObject * parser_dummy_onearg(PyObject *self, PyObject *arg) { Py_RETURN_NONE; }
@@ -395,21 +393,6 @@ static PyTypeObject response_type = {
     .tp_getset = parser_getset,
 };
 
-static PyObject *
-parser_reset(PyObject *self) {
-    if (PyObject_TypeCheck(self, &request_type)) {
-        request_reset(self);
-        Py_RETURN_NONE;
-    }
-
-    if (PyObject_TypeCheck(self, &response_type)) {
-        response_reset(self);
-        Py_RETURN_NONE;
-    }
-
-    PyErr_SetString(PyExc_TypeError, "not llhttp.Request or llhttp.Response");
-    return NULL;
-}
 
 static struct PyModuleDef llhttp_module = {
     PyModuleDef_HEAD_INIT,
