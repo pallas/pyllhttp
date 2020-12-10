@@ -365,40 +365,45 @@ parser_dealloc(PyObject *self) {
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
-static PyTypeObject request_type = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "llhttp.Request",
-    .tp_doc = "llhttp request parser",
-    .tp_basicsize = sizeof(parser_object),
-    .tp_getattro = PyObject_GenericGetAttr,
-    .tp_setattro = PyObject_GenericSetAttr,
-    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_new = request_new,
-    .tp_dealloc = parser_dealloc,
-    .tp_methods = parser_methods,
-    .tp_getset = parser_getset,
+static PyType_Slot request_slots[] = {
+    {Py_tp_doc, "llhttp request parser"},
+    {Py_tp_new, request_new},
+    {Py_tp_dealloc, parser_dealloc},
+    {Py_tp_methods, parser_methods},
+    {Py_tp_getset, parser_getset},
+    {0, 0},
 };
 
-static PyTypeObject response_type = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "llhttp.Response",
-    .tp_doc = "llhttp response parser",
-    .tp_basicsize = sizeof(parser_object),
-    .tp_getattro = PyObject_GenericGetAttr,
-    .tp_setattro = PyObject_GenericSetAttr,
-    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_new = response_new,
-    .tp_dealloc = parser_dealloc,
-    .tp_methods = parser_methods,
-    .tp_getset = parser_getset,
+static PyType_Spec request_spec = {
+    "llhttp.Request",
+    sizeof(parser_object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    request_slots,
 };
 
+static PyType_Slot response_slots[] = {
+    {Py_tp_doc, "llhttp response parser"},
+    {Py_tp_new, response_new},
+    {Py_tp_dealloc, parser_dealloc},
+    {Py_tp_methods, parser_methods},
+    {Py_tp_getset, parser_getset},
+    {0, 0},
+};
+
+static PyType_Spec response_spec = {
+    "llhttp.Response",
+    sizeof(parser_object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    response_slots,
+};
 
 static struct PyModuleDef llhttp_module = {
     PyModuleDef_HEAD_INIT,
     .m_name = "llhttp",
     .m_doc = "llhttp wrapper",
-    .m_size = -1
+    .m_size = -1,
 };
 
 static char *
@@ -451,21 +456,21 @@ HTTP_ERRNO_MAP(HTTP_ERRNO_GEN)
 HTTP_METHOD_MAP(HTTP_METHOD_GEN)
 #undef HTTP_METHOD_GEN
 
-    if (PyType_Ready(&request_type))
+    PyObject *request_type = PyType_FromSpec(&request_spec);
+    if (!request_type)
         goto fail;
 
-    Py_INCREF(&request_type);
-    if (PyModule_AddObject(m, request_type.tp_name + strlen("llhttp."), (PyObject *)&request_type)) {
-        Py_DECREF(&request_type);
+    if (PyModule_AddObject(m, request_spec.name + strlen("llhttp."), request_type)) {
+        Py_DECREF(request_type);
         goto fail;
     }
 
-    if (PyType_Ready(&response_type))
+    PyObject *response_type = PyType_FromSpec(&response_spec);
+    if (!response_type)
         goto fail;
 
-    Py_INCREF(&response_type);
-    if (PyModule_AddObject(m, response_type.tp_name + strlen("llhttp."), (PyObject *)&response_type)) {
-        Py_DECREF(&response_type);
+    if (PyModule_AddObject(m, response_spec.name + strlen("llhttp."), response_type)) {
+        Py_DECREF(response_type);
         goto fail;
     }
 
