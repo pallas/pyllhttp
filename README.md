@@ -91,6 +91,22 @@ pprint({
 })
 ```
 
+```
+{'version': '3.0.0'}
+MESSAGE BEGIN
+UNPAUSING
+UNPAUSING
+UNPAUSING
+URL b'/test'
+HEADER lol: b'wut'
+HEADER oh: b'hai'
+MESSAGE COMPLETE
+{'headers': {'lol': b'wut', 'oh': b'hai'},
+ 'method': 'GET',
+ 'url': b'/test',
+ 'version': '1.1'}
+```
+
 ## Extra
 
 This project is a toy, started to reacquaint myself with Python
