@@ -345,6 +345,14 @@ parser_is_busted(PyObject *self, void *closure) {
     }
 }
 
+static PyObject *
+parser_error(PyObject *self,  void *closure) {
+    llhttp_t *llhttp = &((parser_object*)self)->llhttp;
+    if (HPE_OK == llhttp_get_errno(llhttp))
+        Py_RETURN_NONE;
+    return PyUnicode_FromString(llhttp_get_error_reason(llhttp));
+}
+
 static PyGetSetDef parser_getset[] = {
     { "method", parser_method },
     { "major", parser_major },
@@ -357,6 +365,7 @@ static PyGetSetDef parser_getset[] = {
     { "is_paused", parser_is_paused },
     { "is_upgrading", parser_is_upgrading },
     { "is_busted", parser_is_busted },
+    { "error", parser_error },
     { NULL }
 };
 
