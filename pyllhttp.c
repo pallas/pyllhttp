@@ -208,10 +208,7 @@ parser_finish(PyObject *self) {
 static PyObject *
 parser_reset(PyObject *self) {
     llhttp_t *llhttp = &((parser_object*)self)->llhttp;
-    uint8_t lenient_flags = llhttp->lenient_flags;
-    llhttp_init(llhttp, llhttp->type, &parser_settings);
-    llhttp->lenient_flags = lenient_flags;
-    llhttp->data = self;
+    llhttp_reset(llhttp);
     Py_RETURN_NONE;
 }
 
