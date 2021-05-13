@@ -164,6 +164,7 @@ parser_execute(PyObject *self, PyObject *payload) {
 
     case HPE_PAUSED:
     case HPE_PAUSED_UPGRADE:
+    case HPE_PAUSED_H2_UPGRADE:
         return PyLong_FromUnsignedLong(llhttp->error_pos - (const char*)buffer.buf);
 
     default:
@@ -326,7 +327,15 @@ parser_is_paused(PyObject *self, void *closure) {
 static PyObject *
 parser_is_upgrading(PyObject *self, void *closure) {
     llhttp_t *llhttp = &((parser_object*)self)->llhttp;
-    return PyBool_FromLong(HPE_PAUSED_UPGRADE == llhttp_get_errno(llhttp));
+    switch (llhttp_get_errno(llhttp)) {
+    case HPE_PAUSED_UPGRADE:
+    case HPE_PAUSED_H2_UPGRADE:
+        Py_RETURN_TRUE;
+        break;
+    default:
+         Py_RETURN_FALSE;
+         break;
+    }
 }
 
 static PyObject *
