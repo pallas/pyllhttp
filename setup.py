@@ -17,7 +17,7 @@ setup(
     long_description_content_type = "text/markdown",
     keywords = "www http parser",
     classifiers = [
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: JavaScript",
         "Topic :: Software Development :: Libraries :: Python Modules",
