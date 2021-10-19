@@ -464,16 +464,14 @@ PyInit___llhttp(void) {
         Py_INCREF(base_error);
         PyModule_AddObject(m, "Error", base_error);
 
-        char *long_name = NULL;
 #define HTTP_ERRNO_GEN(CODE, NAME, _) \
-        if (CODE != HPE_OK && CODE != HPE_PAUSED && CODE != HPE_PAUSED_UPGRADE) \
-        if ((long_name = strdup("llhttp." #NAME "_Error"))) { \
+        if (CODE != HPE_OK && CODE != HPE_PAUSED && CODE != HPE_PAUSED_UPGRADE) { \
+            char long_name[] = "llhttp." #NAME "_Error"; \
             char *short_name = snake_to_camel(long_name + strlen("llhttp.")); \
             if ((errors[CODE] = PyErr_NewException(long_name, base_error, NULL))) { \
                 Py_INCREF(errors[CODE]); \
                 PyModule_AddObject(m, short_name, errors[CODE]); \
             } \
-            free(long_name); \
         }
 HTTP_ERRNO_MAP(HTTP_ERRNO_GEN)
 #undef HTTP_ERRNO_GEN
