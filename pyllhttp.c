@@ -307,6 +307,8 @@ parser_set_lenient_ ## name(PyObject *self, PyObject *value, void *closure) \
 LENIENT_FLAG(HEADERS);
 LENIENT_FLAG(CHUNKED_LENGTH);
 LENIENT_FLAG(KEEP_ALIVE);
+LENIENT_FLAG(TRANSFER_ENCODING);
+LENIENT_FLAG(VERSION);
 
 static PyObject *
 parser_get_lenient_headers(PyObject *self, void *closure) {
@@ -408,6 +410,8 @@ static PyGetSetDef parser_getset[] = {
     { "lenient_headers", parser_get_lenient_HEADERS, parser_set_lenient_HEADERS },
     { "lenient_chunked_length", parser_get_lenient_CHUNKED_LENGTH, parser_set_lenient_CHUNKED_LENGTH },
     { "lenient_keep_alive", parser_get_lenient_KEEP_ALIVE, parser_set_lenient_KEEP_ALIVE },
+    { "lenient_transfer_encoding", parser_get_lenient_TRANSFER_ENCODING, parser_set_lenient_TRANSFER_ENCODING },
+    { "lenient_version", parser_get_lenient_VERSION, parser_set_lenient_VERSION },
     { "message_needs_eof", parser_message_needs_eof },
     { "should_keep_alive", parser_should_keep_alive },
     { "is_paused", parser_is_paused },
