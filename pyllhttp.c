@@ -280,6 +280,34 @@ parser_content_length(PyObject *self, void *closure) {
     return PyLong_FromUnsignedLong(llhttp->content_length);
 }
 
+static bool
+get_lenient(const llhttp_t *llhttp, llhttp_lenient_flags_t flag) {
+    return llhttp->lenient_flags & flag;
+}
+
+static int
+set_lenient(llhttp_t *llhttp, llhttp_lenient_flags_t flag, bool value) {
+    if (value) {
+        llhttp->lenient_flags |= flag;
+    } else {
+        llhttp->lenient_flags &= ~flag;
+    }
+    return 0;
+}
+
+#define LENIENT_FLAG(name) \
+static PyObject * \
+parser_get_lenient_ ## name(PyObject *self, void *closure) \
+    { return PyBool_FromLong(get_lenient(&((parser_object*)self)->llhttp, LENIENT_ ## name)); } \
+\
+static int \
+parser_set_lenient_ ## name(PyObject *self, PyObject *value, void *closure) \
+    { return set_lenient(&((parser_object*)self)->llhttp, LENIENT_ ## name, PyObject_IsTrue(value)); }
+
+LENIENT_FLAG(HEADERS);
+LENIENT_FLAG(CHUNKED_LENGTH);
+LENIENT_FLAG(KEEP_ALIVE);
+
 static PyObject *
 parser_get_lenient_headers(PyObject *self, void *closure) {
     llhttp_t *llhttp = &((parser_object*)self)->llhttp;
@@ -377,9 +405,9 @@ static PyGetSetDef parser_getset[] = {
     { "major", parser_major },
     { "minor", parser_minor },
     { "content_length", parser_content_length },
-    { "lenient_headers", parser_get_lenient_headers, parser_set_lenient_headers },
-    { "lenient_chunked_length", parser_get_lenient_chunked_length, parser_set_lenient_chunked_length },
-    { "lenient_keep_alive", parser_get_lenient_keep_alive, parser_set_lenient_keep_alive },
+    { "lenient_headers", parser_get_lenient_HEADERS, parser_set_lenient_HEADERS },
+    { "lenient_chunked_length", parser_get_lenient_CHUNKED_LENGTH, parser_set_lenient_CHUNKED_LENGTH },
+    { "lenient_keep_alive", parser_get_lenient_KEEP_ALIVE, parser_set_lenient_KEEP_ALIVE },
     { "message_needs_eof", parser_message_needs_eof },
     { "should_keep_alive", parser_should_keep_alive },
     { "is_paused", parser_is_paused },
