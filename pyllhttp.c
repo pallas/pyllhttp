@@ -92,36 +92,59 @@ static int parser_ ## type (llhttp_t *llhttp, const char *data, size_t length) \
     return parser_data_callback(name, llhttp, data, length); \
 }
 
-PARSER_CALLBACK(on_message_begin)
-PARSER_DATA_CALLBACK(on_url)
-PARSER_CALLBACK(on_url_complete)
-PARSER_DATA_CALLBACK(on_status)
-PARSER_CALLBACK(on_status_complete)
-PARSER_DATA_CALLBACK(on_header_field)
-PARSER_CALLBACK(on_header_field_complete)
-PARSER_DATA_CALLBACK(on_header_value)
-PARSER_CALLBACK(on_header_value_complete)
-PARSER_CALLBACK(on_headers_complete)
-PARSER_DATA_CALLBACK(on_body)
-PARSER_CALLBACK(on_message_complete)
-PARSER_CALLBACK(on_chunk_header)
-PARSER_CALLBACK(on_chunk_complete)
+PARSER_CALLBACK(on_message_begin);
+PARSER_DATA_CALLBACK(on_protocol);
+PARSER_DATA_CALLBACK(on_url);
+PARSER_DATA_CALLBACK(on_status);
+PARSER_DATA_CALLBACK(on_method);
+PARSER_DATA_CALLBACK(on_version);
+PARSER_DATA_CALLBACK(on_header_field);
+PARSER_DATA_CALLBACK(on_header_value);
+PARSER_DATA_CALLBACK(on_chunk_extension_name);
+PARSER_DATA_CALLBACK(on_chunk_extension_value);
+PARSER_CALLBACK(on_headers_complete);
+PARSER_DATA_CALLBACK(on_body);
+PARSER_CALLBACK(on_message_complete);
+PARSER_CALLBACK(on_protocol_complete);
+PARSER_CALLBACK(on_url_complete);
+PARSER_CALLBACK(on_status_complete);
+PARSER_CALLBACK(on_method_complete);
+PARSER_CALLBACK(on_version_complete);
+PARSER_CALLBACK(on_header_field_complete);
+PARSER_CALLBACK(on_header_value_complete);
+PARSER_CALLBACK(on_chunk_extension_name_complete);
+PARSER_CALLBACK(on_chunk_extension_value_complete);
+PARSER_CALLBACK(on_chunk_header);
+PARSER_CALLBACK(on_chunk_complete);
+PARSER_CALLBACK(on_reset);
 
+#define PARSER_SETTING(type) . type = parser_ ##type
 llhttp_settings_t parser_settings = {
-    .on_message_begin = parser_on_message_begin,
-    .on_url = parser_on_url,
-    .on_url_complete = parser_on_url_complete,
-    .on_status = parser_on_status,
-    .on_status_complete = parser_on_status_complete,
-    .on_header_field = parser_on_header_field,
-    .on_header_field_complete = parser_on_header_field_complete,
-    .on_header_value = parser_on_header_value,
-    .on_header_value_complete = parser_on_header_value_complete,
-    .on_headers_complete = parser_on_headers_complete,
-    .on_body = parser_on_body,
-    .on_message_complete = parser_on_message_complete,
-    .on_chunk_header = parser_on_chunk_header,
-    .on_chunk_complete = parser_on_chunk_complete,
+    PARSER_SETTING(on_message_begin),
+    PARSER_SETTING(on_protocol),
+    PARSER_SETTING(on_url),
+    PARSER_SETTING(on_status),
+    PARSER_SETTING(on_method),
+    PARSER_SETTING(on_version),
+    PARSER_SETTING(on_header_field),
+    PARSER_SETTING(on_header_value),
+    PARSER_SETTING(on_chunk_extension_name),
+    PARSER_SETTING(on_chunk_extension_value),
+    PARSER_SETTING(on_headers_complete),
+    PARSER_SETTING(on_body),
+    PARSER_SETTING(on_message_complete),
+    PARSER_SETTING(on_protocol_complete),
+    PARSER_SETTING(on_url_complete),
+    PARSER_SETTING(on_status_complete),
+    PARSER_SETTING(on_method_complete),
+    PARSER_SETTING(on_version_complete),
+    PARSER_SETTING(on_header_field_complete),
+    PARSER_SETTING(on_header_value_complete),
+    PARSER_SETTING(on_chunk_extension_name_complete),
+    PARSER_SETTING(on_chunk_extension_value_complete),
+    PARSER_SETTING(on_chunk_header),
+    PARSER_SETTING(on_chunk_complete),
+    PARSER_SETTING(on_reset),
 };
 
 static PyObject *
@@ -232,19 +255,30 @@ static PyMethodDef parser_methods[] = {
     { "finish", (PyCFunction)parser_finish, METH_NOARGS },
     { "reset", (PyCFunction)parser_reset, METH_NOARGS },
     { "on_message_begin", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
+    { "on_protocol", (PyCFunction)parser_dummy_onearg, METH_O },
     { "on_url", (PyCFunction)parser_dummy_onearg, METH_O },
-    { "on_url_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
     { "on_status", (PyCFunction)parser_dummy_onearg, METH_O },
-    { "on_status_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
+    { "on_method", (PyCFunction)parser_dummy_onearg, METH_O },
+    { "on_version", (PyCFunction)parser_dummy_onearg, METH_O },
     { "on_header_field", (PyCFunction)parser_dummy_onearg, METH_O },
-    { "on_header_field_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
     { "on_header_value", (PyCFunction)parser_dummy_onearg, METH_O },
-    { "on_header_value_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
+    { "on_chunk_extension_name", (PyCFunction)parser_dummy_onearg, METH_O },
+    { "on_chunk_extension_value", (PyCFunction)parser_dummy_onearg, METH_O },
     { "on_headers_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
     { "on_body", (PyCFunction)parser_dummy_onearg, METH_O },
     { "on_message_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
+    { "on_protocol_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
+    { "on_url_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
+    { "on_status_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
+    { "on_method_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
+    { "on_version_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
+    { "on_header_field_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
+    { "on_header_value_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
+    { "on_chunk_extension_name_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
+    { "on_chunk_extension_value_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
     { "on_chunk_header", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
     { "on_chunk_complete", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
+    { "on_reset", (PyCFunction)parser_dummy_noargs, METH_NOARGS },
     { NULL }
 };
 
