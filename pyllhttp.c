@@ -360,45 +360,11 @@ LENIENT_FLAG(CHUNKED_LENGTH);
 LENIENT_FLAG(KEEP_ALIVE);
 LENIENT_FLAG(TRANSFER_ENCODING);
 LENIENT_FLAG(VERSION);
-
-static PyObject *
-parser_get_lenient_headers(PyObject *self, void *closure) {
-    llhttp_t *llhttp = &((parser_object*)self)->llhttp;
-    return PyBool_FromLong(llhttp->lenient_flags & LENIENT_HEADERS);
-}
-
-static int
-parser_set_lenient_headers(PyObject *self, PyObject *value, void *closure) {
-    llhttp_t *llhttp = &((parser_object*)self)->llhttp;
-    llhttp_set_lenient_headers(llhttp, PyObject_IsTrue(value));
-    return 0;
-}
-
-static PyObject *
-parser_get_lenient_chunked_length(PyObject *self, void *closure) {
-    llhttp_t *llhttp = &((parser_object*)self)->llhttp;
-    return PyBool_FromLong(llhttp->lenient_flags & LENIENT_CHUNKED_LENGTH);
-}
-
-static int
-parser_set_lenient_chunked_length(PyObject *self, PyObject *value, void *closure) {
-    llhttp_t *llhttp = &((parser_object*)self)->llhttp;
-    llhttp_set_lenient_chunked_length(llhttp, PyObject_IsTrue(value));
-    return 0;
-}
-
-static PyObject *
-parser_get_lenient_keep_alive(PyObject *self, void *closure) {
-    llhttp_t *llhttp = &((parser_object*)self)->llhttp;
-    return PyBool_FromLong(llhttp->lenient_flags & LENIENT_KEEP_ALIVE);
-}
-
-static int
-parser_set_lenient_keep_alive(PyObject *self, PyObject *value, void *closure) {
-    llhttp_t *llhttp = &((parser_object*)self)->llhttp;
-    llhttp_set_lenient_keep_alive(llhttp, PyObject_IsTrue(value));
-    return 0;
-}
+LENIENT_FLAG(DATA_AFTER_CLOSE);
+LENIENT_FLAG(OPTIONAL_LF_AFTER_CR);
+LENIENT_FLAG(OPTIONAL_CRLF_AFTER_CHUNK);
+LENIENT_FLAG(OPTIONAL_CR_BEFORE_LF);
+LENIENT_FLAG(SPACES_AFTER_CHUNK_SIZE);
 
 static PyObject *
 parser_message_needs_eof(PyObject *self, void *closure) {
@@ -464,6 +430,11 @@ static PyGetSetDef parser_getset[] = {
     { "lenient_keep_alive", parser_get_lenient_KEEP_ALIVE, parser_set_lenient_KEEP_ALIVE },
     { "lenient_transfer_encoding", parser_get_lenient_TRANSFER_ENCODING, parser_set_lenient_TRANSFER_ENCODING },
     { "lenient_version", parser_get_lenient_VERSION, parser_set_lenient_VERSION },
+    { "lenient_data_after_close", parser_get_lenient_DATA_AFTER_CLOSE, parser_set_lenient_DATA_AFTER_CLOSE },
+    { "lenient_lf_after_cr", parser_get_lenient_OPTIONAL_LF_AFTER_CR, parser_set_lenient_OPTIONAL_LF_AFTER_CR },
+    { "lenient_optional_crlf_after_chunk", parser_get_lenient_OPTIONAL_CRLF_AFTER_CHUNK, parser_set_lenient_OPTIONAL_CRLF_AFTER_CHUNK },
+    { "lenient_optional_cr_before_lf", parser_get_lenient_OPTIONAL_CR_BEFORE_LF, parser_set_lenient_OPTIONAL_CR_BEFORE_LF },
+    { "lenient_spaces_after_chunk_size", parser_get_lenient_SPACES_AFTER_CHUNK_SIZE, parser_set_lenient_SPACES_AFTER_CHUNK_SIZE },
     { "message_needs_eof", parser_message_needs_eof },
     { "should_keep_alive", parser_should_keep_alive },
     { "is_paused", parser_is_paused },
