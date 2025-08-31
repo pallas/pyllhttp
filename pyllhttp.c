@@ -29,8 +29,8 @@ HTTP_METHOD_MAP(HTTP_METHOD_GEN)
 
 
 static int
-parser_callback(_Py_Identifier *type, llhttp_t *llhttp) {
-    PyObject *result = _PyObject_CallMethodIdObjArgs(llhttp->data, type, NULL);
+parser_callback(PyObject *name, llhttp_t *llhttp) {
+    PyObject *result = PyObject_CallMethodNoArgs(llhttp->data, name);
     if (result)
         Py_DECREF(result);
 
@@ -51,9 +51,9 @@ parser_callback(_Py_Identifier *type, llhttp_t *llhttp) {
 }
 
 static int
-parser_data_callback(_Py_Identifier *type, llhttp_t *llhttp, const char *data, size_t length) {
+parser_data_callback(PyObject *name, llhttp_t *llhttp, const char *data, size_t length) {
     PyObject *payload = PyMemoryView_FromMemory((char*)data, length, PyBUF_READ);
-    PyObject *result = _PyObject_CallMethodIdObjArgs(llhttp->data, type, payload, NULL);
+    PyObject *result = PyObject_CallMethodOneArg(llhttp->data, name, payload);
     Py_DECREF(payload);
     if (result)
         Py_DECREF(result);
@@ -75,14 +75,22 @@ parser_data_callback(_Py_Identifier *type, llhttp_t *llhttp, const char *data, s
 }
 
 #define PARSER_CALLBACK(type) \
-_Py_IDENTIFIER(type); \
 static int parser_ ## type (llhttp_t *llhttp) \
-    { return parser_callback(&PyId_ ## type, llhttp); }
+{ \
+    static PyObject * name = NULL; \
+    if (!name) \
+        name = PyUnicode_InternFromString(#type); \
+    return parser_callback(name, llhttp); \
+}
 
 #define PARSER_DATA_CALLBACK(type) \
-_Py_IDENTIFIER(type); \
 static int parser_ ## type (llhttp_t *llhttp, const char *data, size_t length) \
-    { return parser_data_callback(&PyId_ ## type, llhttp, data, length); }
+{ \
+    static PyObject * name = NULL; \
+    if (!name) \
+        name = PyUnicode_InternFromString(#type); \
+    return parser_data_callback(name, llhttp, data, length); \
+}
 
 PARSER_CALLBACK(on_message_begin)
 PARSER_DATA_CALLBACK(on_url)
