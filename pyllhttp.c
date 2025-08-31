@@ -16,13 +16,13 @@ typedef struct {
 
 static PyObject *base_error;
 static PyObject *errors[] = {
-#define HTTP_ERRNO_GEN(CODE, NAME, _) NULL,
+#define HTTP_ERRNO_GEN(CODE, NAME, _) [CODE] = NULL,
 HTTP_ERRNO_MAP(HTTP_ERRNO_GEN)
 #undef HTTP_ERRNO_GEN
 };
 
 static PyObject *methods[] = {
-#define HTTP_METHOD_GEN(NUMBER, NAME, STRING) NULL,
+#define HTTP_METHOD_GEN(NUMBER, NAME, STRING) [NUMBER] = NULL,
 HTTP_METHOD_MAP(HTTP_METHOD_GEN)
 #undef HTTP_METHOD_GEN
 };
