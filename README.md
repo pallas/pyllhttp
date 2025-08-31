@@ -92,7 +92,7 @@ pprint({
 ```
 
 ```
-{'version': '3.0.0'}
+{'version': '9.3.0'}
 MESSAGE BEGIN
 UNPAUSING
 UNPAUSING
