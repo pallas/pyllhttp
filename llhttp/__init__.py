@@ -1,2 +1,2 @@
-from __llhttp import *
+from .__llhttp import *
 __all__ = ("Request", "Response")
