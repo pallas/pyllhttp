@@ -27,7 +27,7 @@ setup(
     ],
     packages = [ "llhttp" ],
     headers = [ "lib/llhttp.h" ],
-    ext_modules = [ Extension('__llhttp',
+    ext_modules = [ Extension('llhttp.__llhttp',
         sources = """
             pyllhttp.c
             lib/llhttp.c
